@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Position Size Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e14;
+    --surface: #121821;
+    --surface-2: #1a222e;
+    --line: #232d3b;
+    --text: #e7eaee;
+    --text-dim: #8a94a6;
+    --accent: #e8a33d;
+    --accent-dim: #b9822f;
+    --danger: #e5484d;
+    --danger-bg: #2a1518;
+    --sans: 'Space Grotesk', system-ui, sans-serif;
+    --mono: 'JetBrains Mono', ui-monospace, monospace;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    display: flex;
+    justify-content: center;
+    padding: 32px 16px;
+  }
+
+  .terminal {
+    width: 100%;
+    max-width: 640px;
+  }
+
+  header {
+    margin-bottom: 24px;
+  }
+
+  header h1 {
+    margin: 0 0 6px;
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  header .sub {
+    margin: 0;
+    color: var(--text-dim);
+    font-size: 14px;
+  }
+
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .inputs {
+    padding: 24px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .field label {
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+
+  .field .input-row {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 6px;
+    transition: border-color 0.15s ease;
+  }
+
+  .field .input-row:focus-within {
+    border-color: var(--accent);
+  }
+
+  .field input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 18px;
+    min-width: 0;
+  }
+
+  .field .unit {
+    color: var(--text-dim);
+    font-family: var(--mono);
+    font-size: 13px;
+    margin-left: 8px;
+  }
+
+  .readout {
+    border-top: 1px solid var(--line);
+    background: var(--surface-2);
+    padding: 24px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    align-items: end;
+  }
+
+  .metric-label {
+    display: block;
+    color: var(--text-dim);
+    font-size: 12px;
+    margin-bottom: 6px;
+  }
+
+  .metric-value {
+    display: block;
+    font-family: var(--mono);
+    font-size: 22px;
+    font-weight: 500;
+  }
+
+  .metric.hero .metric-value {
+    font-size: 34px;
+    font-weight: 700;
+    color: var(--accent);
+    text-shadow: 0 0 24px rgba(232, 163, 61, 0.25);
+  }
+
+  .metric.hero .metric-value small {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--accent-dim);
+    margin-left: 4px;
+  }
+
+  .warning {
+    grid-column: 1 / -1;
+    background: var(--danger-bg);
+    border: 1px solid var(--danger);
+    color: var(--danger);
+    font-size: 13px;
+    padding: 10px 12px;
+    border-radius: 4px;
+    margin-top: -4px;
+  }
+
+  .warning.hidden {
+    display: none;
+  }
+
+  footer {
+    margin-top: 16px;
+    color: var(--text-dim);
+    font-size: 12px;
+    line-height: 1.6;
+  }
+
+  footer code {
+    font-family: var(--mono);
+    color: var(--text);
+  }
+
+  @media (max-width: 480px) {
+    .inputs, .readout {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="terminal">
+    <header>
+      <h1>Position Size</h1>
+      <p class="sub">คำนวณขนาดโพซิชันจาก % ความเสี่ยงที่รับได้ต่อไม้</p>
+    </header>
+
+    <div class="panel">
+      <div class="inputs">
+        <div class="field">
+          <label for="balance">ยอดเงินในพอร์ต</label>
+          <div class="input-row">
+            <input id="balance" type="number" value="10000" step="100" inputmode="decimal">
+            <span class="unit">USD</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="riskPct">ความเสี่ยงต่อไม้</label>
+          <div class="input-row">
+            <input id="riskPct" type="number" value="1" step="0.1" inputmode="decimal">
+            <span class="unit">%</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="slPips">Stop Loss</label>
+          <div class="input-row">
+            <input id="slPips" type="number" value="20" step="1" inputmode="decimal">
+            <span class="unit">pips</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="pipValue">มูลค่า Pip ต่อ 1 Lot</label>
+          <div class="input-row">
+            <input id="pipValue" type="number" value="10" step="0.1" inputmode="decimal">
+            <span class="unit">USD</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="readout">
+        <div class="metric">
+          <span class="metric-label">Risk Amount</span>
+          <span class="metric-value" id="riskAmount">$0.00</span>
+        </div>
+        <div class="metric hero">
+          <span class="metric-label">Position Size</span>
+          <span class="metric-value" id="lotSize">0.00<small>lots</small></span>
+        </div>
+        <div class="warning hidden" id="warning">⚠ ความเสี่ยงเกิน 2% ต่อไม้ — สูงกว่าระดับที่เทรดเดอร์ส่วนใหญ่แนะนำ</div>
+      </div>
+    </div>
+
+    <footer>
+      สูตร: <code>Risk Amount = Balance × Risk%</code> &nbsp;→&nbsp; <code>Lots = Risk Amount ÷ (SL pips × Pip Value)</code>
+    </footer>
+  </div>
+
+<script>
+  const el = (id) => document.getElementById(id);
+  const fields = ['balance', 'riskPct', 'slPips', 'pipValue'];
+
+  function calculate() {
+    const balance = parseFloat(el('balance').value) || 0;
+    const riskPct = parseFloat(el('riskPct').value) || 0;
+    const slPips = parseFloat(el('slPips').value) || 0;
+    const pipValue = parseFloat(el('pipValue').value) || 0;
+
+    const riskAmount = balance * (riskPct / 100);
+    const lots = (slPips > 0 && pipValue > 0) ? riskAmount / (slPips * pipValue) : 0;
+
+    el('riskAmount').textContent = '$' + riskAmount.toFixed(2);
+    el('lotSize').innerHTML = lots.toFixed(2) + '<small>lots</small>';
+
+    el('warning').classList.toggle('hidden', riskPct <= 2);
+  }
+
+  fields.forEach((id) => el(id).addEventListener('input', calculate));
+  calculate();
+</script>
+</body>
+</html>
